@@ -13,7 +13,7 @@ A CLI tool and library written in Go for converting documents to Markdown format
 > **Note**: This tool requires CGO to be enabled. Make sure to set `CGO_ENABLED=1` when installing or building the tool.
 
 ```bash
-CGO_ENABLED=1 go install github.com/recally-io/go-markitdown/cmd@latest
+CGO_ENABLED=1 go install github.com/recally-io/go-markitdown/cmd/markitdown@latest
 ```
 
 ## Usage
