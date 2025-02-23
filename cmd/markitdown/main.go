@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,8 +34,11 @@ type convertFlags struct {
 }
 
 func main() {
+	// Initialize slog
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, nil)))
+
 	if err := newRootCmd().Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		slog.Error("command execution failed", "error", err)
 		os.Exit(1)
 	}
 }
@@ -77,7 +81,7 @@ func (f *convertFlags) runConvert(cmd *cobra.Command, args []string) error {
 	}
 
 	// Show progress
-	fmt.Printf("Converting %s to markdown...\n", input)
+	slog.Info("Converting file to markdown", "input", input)
 	startTime := time.Now()
 
 	// Convert document
@@ -91,7 +95,7 @@ func (f *convertFlags) runConvert(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("✓ Conversion completed in %v\n", time.Since(startTime).Round(time.Millisecond))
+	slog.Info("Conversion completed", "duration", time.Since(startTime).Round(time.Millisecond))
 	return nil
 }
 
@@ -160,7 +164,7 @@ func (f *convertFlags) writeOutput(text string) error {
 		return nil
 	}
 
-	if err := os.WriteFile(f.outputPath, []byte(text), 0644); err != nil {
+	if err := os.WriteFile(f.outputPath, []byte(text), 0600); err != nil {
 		return fmt.Errorf("failed to write output: %w", err)
 	}
 	return nil

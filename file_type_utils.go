@@ -42,23 +42,11 @@ func getFileType(resp *http.Response, url string) (string, error) {
 	}
 
 	// Fallback to URL extension
-	ext := strings.ToLower(filepath.Ext(url))
-	switch ext {
-	case ".html", ".htm":
-		return "html", nil
-	case ".pdf":
-		return "pdf", nil
-	case ".epub":
-		return "epub", nil
-	case ".doc", ".docx":
-		return "doc", nil
-	case ".md", ".markdown":
-		return "md", nil
-	case ".txt":
-		return "txt", nil
+	ext, err := getFileTypeFromPath(url)
+	if err != nil {
+		return "", fmt.Errorf("failed to determine file type from URL: %w", err)
 	}
-
-	return "", fmt.Errorf("unsupported or unknown file type for URL: %s", url)
+	return ext, nil
 }
 
 // getFileTypeFromPath determines the file type from a file path.
