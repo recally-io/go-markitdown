@@ -1,0 +1,10 @@
+github.com/ebitengine/purego v0.8.0 h1:JbqvnEzRvPpxhCJzJJ2y0RbiZ8nyjccVUrSM3q+GvvE=
+github.com/ebitengine/purego v0.8.0/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
+github.com/gen2brain/go-fitz v1.24.14 h1:09weRkjVtLYNGo7l0J7DyOwBExbwi8SJ9h8YPhw9WEo=
+github.com/gen2brain/go-fitz v1.24.14/go.mod h1:0KaZeQgASc20Yp5R/pFzyy7SmP01XcoHKNF842U2/S4=
+github.com/jupiterrider/ffi v0.2.0 h1:tMM70PexgYNmV+WyaYhJgCvQAvtTCs3wXeILPutihnA=
+github.com/jupiterrider/ffi v0.2.0/go.mod h1:yqYqX5DdEccAsHeMn+6owkoI2llBLySVAF8dwCDZPVs=
+github.com/sashabaranov/go-openai v1.37.0 h1:hQQowgYm4OXJ1Z/wTrE+XZaO20BYsL0R3uRPSpfNZkY=
+github.com/sashabaranov/go-openai v1.37.0/go.mod h1:lj5b/K+zjTSFxVLijLSTDZuP7adOgerWeFyZLUhAKRg=
+golang.org/x/sync v0.11.0 h1:GGz8+XQP4FvTTrjZPzNKTMFtSXH80RAzG+5ghFPgK9w=
+golang.org/x/sync v0.11.0/go.mod h1:Czt+wKu1gCyEFDUtn0jG5QVvpJ6rzVqr5aXyt9drQfk=
