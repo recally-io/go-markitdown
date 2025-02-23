@@ -28,9 +28,8 @@ var (
 
 // Command line flags
 type convertFlags struct {
-	outputPath     string
-	preserveLayout bool
-	model          string
+	outputPath string
+	model      string
 }
 
 func main() {
@@ -42,29 +41,29 @@ func main() {
 
 // newRootCmd creates the root command
 func newRootCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "markitdown",
-		Short: "Convert documents to markdown",
-		Long:  `A powerful document conversion tool that preserves semantic structure`,
-	}
-	cmd.AddCommand(newConvertCmd())
-	return cmd
-}
-
-// newConvertCmd creates the convert subcommand
-func newConvertCmd() *cobra.Command {
 	flags := &convertFlags{}
 	cmd := &cobra.Command{
-		Use:   "convert <file|url>",
-		Short: "Convert a document to markdown",
-		Args:  cobra.ExactArgs(1),
-		RunE:  flags.runConvert,
+		Use:   "markitdown <file|url>",
+		Short: "Convert documents to markdown",
+		Long:  `A powerful document conversion tool that preserves semantic structure`,
+		Example: `  # Convert a local PDF file
+  markitdown document.pdf -o output.md
+
+  # Convert from a URL
+  markitdown https://example.com/document.html -o output.md
+
+  # Use a specific LLM model
+  markitdown document.pdf -m gpt-4 -o output.md
+
+  # Output to stdout (no -o flag)
+  markitdown document.pdf`,
+		Args: cobra.ExactArgs(1),
+		RunE: flags.runConvert,
 	}
 
 	// Define flags
 	cmd.Flags().StringVarP(&flags.outputPath, "output", "o", "", "Output file path")
 	cmd.Flags().StringVarP(&flags.model, "model", "m", defaultModel, "LLM model to use")
-	cmd.Flags().BoolVar(&flags.preserveLayout, "preserve-layout", false, "Maintain original document layout")
 
 	return cmd
 }
@@ -149,8 +148,8 @@ func validateFile(path string) error {
 
 	ext := strings.ToLower(filepath.Ext(path))
 	if slices.Contains(supportedExtensions, ext) {
-			return nil
-		}
+		return nil
+	}
 	return fmt.Errorf("unsupported file type: %s (supported: %v)", ext, supportedExtensions)
 }
 

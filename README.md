@@ -10,8 +10,10 @@ A CLI tool and library written in Go for converting documents to Markdown format
 
 ## Installation
 
+> **Note**: This tool requires CGO to be enabled. Make sure to set `CGO_ENABLED=1` when installing or building the tool.
+
 ```bash
-go install github.com/recally-io/go-markitdown/cmd/markitdown@latest
+CGO_ENABLED=1 go install github.com/recally-io/go-markitdown/cmd@latest
 ```
 
 ## Usage
@@ -33,22 +35,18 @@ These environment variables are required for PDF text extraction using OpenAI's 
 
 ```bash
 # Convert a local file
-markitdown convert document.pdf -o output.md
+markitdown document.pdf -o output.md
 
 # Convert from URL
-markitdown convert https://example.com/document.html -o output.md
-
-# Preserve original document layout
-markitdown convert document.pdf --preserve-layout -o output.md
+markitdown https://example.com/document.html -o output.md
 
 # Specify a different LLM model
-markitdown convert document.pdf -m gpt-4 -o output.md
+markitdown document.pdf -m gpt-4 -o output.md
 ```
 
 Available flags:
 - `-o, --output`: Output file path (if not specified, outputs to stdout)
 - `-m, --model`: LLM model to use (default: gpt-4o-mini)
-- `--preserve-layout`: Maintain original document layout
 
 ### Library Usage
 
