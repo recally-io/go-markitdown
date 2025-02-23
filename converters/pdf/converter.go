@@ -10,32 +10,22 @@ import (
 	"sync"
 
 	"github.com/gen2brain/go-fitz"
-	openai "github.com/sashabaranov/go-openai"
+	"github.com/recally-io/go-markitdown/converters"
+	"github.com/sashabaranov/go-openai"
 	"golang.org/x/sync/errgroup"
 )
 
-//go:embed prompt.md
-var systemMessage string
-
-type PDFConverter struct {
-	llmClient  *openai.Client
-	llmPrompt  string
-	llmModel   string
-	numWorkers int
-	imageDPI   float64
+type Converter struct {
+	options *converters.Options
 }
 
-func NewPDFConverter(llmClient *openai.Client) *PDFConverter {
-	return &PDFConverter{
-		llmClient:  llmClient,
-		llmPrompt:  systemMessage,
-		llmModel:   "gpt-4o",
-		numWorkers: 10,
-		imageDPI:   300,
+func NewConverter(opts ...converters.Option) *Converter {
+	return &Converter{
+		options: converters.NewOptions(opts...),
 	}
 }
 
-func (c *PDFConverter) Convert(ctx context.Context, reader io.ReadCloser) (string, error) {
+func (c *Converter) Convert(ctx context.Context, reader io.ReadCloser) (string, error) {
 	defer reader.Close()
 	doc, err := fitz.NewFromReader(reader)
 	if err != nil {
@@ -44,7 +34,7 @@ func (c *PDFConverter) Convert(ctx context.Context, reader io.ReadCloser) (strin
 	defer doc.Close()
 
 	var texts []string
-	if c.llmClient != nil {
+	if c.options.LLMClient != nil {
 		texts, err = c.ConvertPagesWithLLM(ctx, doc)
 	} else {
 		texts, err = c.ConvertPages(ctx, doc)
@@ -56,7 +46,7 @@ func (c *PDFConverter) Convert(ctx context.Context, reader io.ReadCloser) (strin
 	return strings.Join(texts, "\n\n"), nil
 }
 
-func (c *PDFConverter) ConvertPages(ctx context.Context, doc *fitz.Document) ([]string, error) {
+func (c *Converter) ConvertPages(ctx context.Context, doc *fitz.Document) ([]string, error) {
 	totalPages := doc.NumPage()
 	fmt.Printf("Processing %d pages...\n", totalPages)
 	results := make([]string, totalPages)
@@ -64,14 +54,14 @@ func (c *PDFConverter) ConvertPages(ctx context.Context, doc *fitz.Document) ([]
 		pageText, err := doc.Text(i)
 		if err != nil {
 			return nil, fmt.Errorf("failed to extract text from page %d: %w", i+1, err)
-		}	
+		}
 		results[i] = pageText
 	}
 
 	return results, nil
 }
 
-func (c *PDFConverter) ConvertPagesWithLLM(ctx context.Context, doc *fitz.Document) ([]string, error) {
+func (c *Converter) ConvertPagesWithLLM(ctx context.Context, doc *fitz.Document) ([]string, error) {
 	totalPages := doc.NumPage()
 	fmt.Printf("Processing %d pages...\n", totalPages)
 
@@ -80,7 +70,7 @@ func (c *PDFConverter) ConvertPagesWithLLM(ctx context.Context, doc *fitz.Docume
 	var mu sync.Mutex
 
 	// Process pages in parallel with bounded concurrency
-	sem := make(chan struct{}, c.numWorkers)
+	sem := make(chan struct{}, c.options.NumWorkers)
 	for i := 0; i < totalPages; i++ {
 		i := i // Create new variable for goroutine
 
@@ -108,7 +98,7 @@ func (c *PDFConverter) ConvertPagesWithLLM(ctx context.Context, doc *fitz.Docume
 }
 
 // processPage handles the conversion of a single PDF page
-func (c *PDFConverter) processPage(ctx context.Context, doc *fitz.Document, pageNum int) (string, error) {
+func (c *Converter) processPage(ctx context.Context, doc *fitz.Document, pageNum int) (string, error) {
 	// Extract text
 	pageText, err := doc.Text(pageNum)
 	if err != nil {
@@ -116,18 +106,18 @@ func (c *PDFConverter) processPage(ctx context.Context, doc *fitz.Document, page
 	}
 
 	// Extract image
-	img, err := doc.ImagePNG(pageNum, c.imageDPI)
+	img, err := doc.ImagePNG(pageNum, c.options.ImageDPI)
 	if err != nil {
 		return "", fmt.Errorf("failed to extract image from page %d: %w", pageNum, err)
 	}
 
 	// Create chat completion request
 	req := openai.ChatCompletionRequest{
-		Model: c.llmModel,
+		Model: c.options.LLMModel,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleSystem,
-				Content: c.llmPrompt,
+				Content: c.options.LLMPrompt,
 			},
 			{
 				Role: openai.ChatMessageRoleUser,
@@ -149,7 +139,7 @@ func (c *PDFConverter) processPage(ctx context.Context, doc *fitz.Document, page
 	}
 
 	// Get response from API
-	resp, err := c.llmClient.CreateChatCompletion(ctx, req)
+	resp, err := c.options.LLMClient.CreateChatCompletion(ctx, req)
 	if err != nil {
 		return "", fmt.Errorf("API call failed for page %d: %w", pageNum, err)
 	}
