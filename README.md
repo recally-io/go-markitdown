@@ -98,6 +98,39 @@ Input formats:
 Output format:
 - Markdown (.md)
 
+## Development
+
+### Linting
+This project uses GolangCI-lint for code quality checks. To run the linter:
+
+```bash
+# Install golangci-lint
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+# Run linter
+golangci-lint run
+```
+
+### Releasing
+We use GoReleaser to automate the release process. To create a new release:
+
+1. Tag your release:
+```bash
+git tag -a v0.1.0 -m "First release"
+git push origin v0.1.0
+```
+
+2. Test the release locally:
+```bash
+goreleaser check  # Check if the config is valid
+goreleaser release --snapshot --clean  # Test the release process
+```
+
+3. To perform an actual release:
+```bash
+goreleaser release --clean
+```
+
 ## License
 
 [MIT License](./LICENSE)

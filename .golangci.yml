@@ -1,0 +1,34 @@
+linters:
+  enable:
+    - gofmt
+    - govet
+    - errcheck
+    - staticcheck
+    - gosimple
+    - unused
+    - gocyclo
+    - gosec
+    - bodyclose
+    - unconvert
+    - misspell
+  disable:
+    - typecheck
+
+run:
+  timeout: 3m
+  tests: true
+  concurrency: 4
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+  misspell:
+    locale: US
