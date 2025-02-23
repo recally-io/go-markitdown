@@ -71,7 +71,7 @@ func (c *Converter) ConvertPagesWithLLM(ctx context.Context, doc *fitz.Document)
 
 	// Process pages in parallel with bounded concurrency
 	sem := make(chan struct{}, c.options.NumWorkers)
-	for i := 0; i < totalPages; i++ {
+	for i := range results {
 		i := i // Create new variable for goroutine
 
 		g.Go(func() error {
